@@ -139,12 +139,12 @@ public class RepositoryPostgres {
         System.out.println("Trabalho: " + p.getTrabalho());
         System.out.println("-----------------------");
     }
-    public boolean existeId(int id) {
-    String sql = "SELECT 1 FROM pessoas WHERE id = ?";
+    public boolean existeId(String cpf) {
+    String sql = "SELECT 1 FROM pessoas WHERE cpf = ?";
     try (PreparedStatement stmt = connection.prepareStatement(sql)) {
-        stmt.setInt(1, id);
+        stmt.setString(1, cpf);
         try (ResultSet rs = stmt.executeQuery()) {
-            return rs.next(); // retorna true se encontrou o ID
+            return rs.next();
         }
     } catch (SQLException e) {
         e.printStackTrace();
