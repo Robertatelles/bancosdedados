@@ -22,7 +22,7 @@ public class RepositoryPostgres {
 
     public void adicionar(Pessoa pessoa) {
         long start = System.currentTimeMillis();
-        String sql = "INSERT INTO pessoas (id, nome, email, cpf, data_nascimento, trabalho) VALUES (?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO pessoas (id, nome, email, cpf, data_nascimento, amizade) VALUES (?, ?, ?, ?, ?, ?)";
 
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setInt(1, pessoa.getId());
@@ -30,7 +30,7 @@ public class RepositoryPostgres {
             stmt.setString(3, pessoa.getEmail());
             stmt.setString(4, pessoa.getCpf());
             stmt.setString(5, pessoa.getDataNascimento());
-            stmt.setString(6, pessoa.getTrabalho());
+            stmt.setString(6, pessoa.getAmizade());
             stmt.executeUpdate();
             redis.del(CACHE_KEY);
             System.out.println("Pessoa cadastrada com sucesso!");
@@ -53,7 +53,7 @@ public class RepositoryPostgres {
             }
         } else {
             List<Pessoa> pessoaList = new ArrayList<>();
-            String sql = "SELECT id, nome, email, cpf, data_nascimento, trabalho FROM pessoas";
+            String sql = "SELECT id, nome, email, cpf, data_nascimento, amizade FROM pessoas";
 
             try (Statement stmt = connection.createStatement();
                  ResultSet rs = stmt.executeQuery(sql)) {
@@ -65,7 +65,7 @@ public class RepositoryPostgres {
                         rs.getString("email"),
                         rs.getString("cpf"),
                         rs.getString("data_nascimento"),
-                        rs.getString("trabalho")
+                        rs.getString("amizade")
                     );
                     pessoaList.add(pessoa);
                 }
@@ -136,7 +136,7 @@ public class RepositoryPostgres {
         System.out.println("Email: " + p.getEmail());
         System.out.println("CPF: " + p.getCpf());
         System.out.println("Nascimento: " + p.getDataNascimento());
-        System.out.println("Trabalho: " + p.getTrabalho());
+        System.out.println("Amizade: " + p.getAmizade());
         System.out.println("-----------------------");
     }
 
@@ -155,7 +155,7 @@ public class RepositoryPostgres {
 
     public Pessoa buscarPorCpf(String cpf) {
         long start = System.currentTimeMillis();
-        String sql = "SELECT id, nome, email, cpf, data_nascimento, trabalho FROM pessoas WHERE cpf = ?";
+        String sql = "SELECT id, nome, email, cpf, data_nascimento, amizade FROM pessoas WHERE cpf = ?";
 
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setString(1, cpf);
@@ -168,7 +168,7 @@ public class RepositoryPostgres {
                     rs.getString("email"),
                     rs.getString("cpf"),
                     rs.getString("data_nascimento"),
-                    rs.getString("trabalho")
+                    rs.getString("amizade")
                 );
 
                 long duration = System.currentTimeMillis() - start;
@@ -183,7 +183,7 @@ public class RepositoryPostgres {
         return null;
     }
     public Pessoa buscarPorId(int id) {
-    String sql = "SELECT id, nome, email, cpf, data_nascimento, trabalho FROM pessoas WHERE id = ?";
+    String sql = "SELECT id, nome, email, cpf, data_nascimento, amizade FROM pessoas WHERE id = ?";
     try (PreparedStatement stmt = connection.prepareStatement(sql)) {
         stmt.setInt(1, id);
         ResultSet rs = stmt.executeQuery();
@@ -194,7 +194,7 @@ public class RepositoryPostgres {
                 rs.getString("email"),
                 rs.getString("cpf"),
                 rs.getString("data_nascimento"),
-                rs.getString("trabalho")
+                rs.getString("amizade")
             );
         }
     } catch (SQLException e) {

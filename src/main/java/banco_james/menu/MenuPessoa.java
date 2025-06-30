@@ -71,10 +71,10 @@ public class MenuPessoa {
             System.out.print("Data de nascimento (AAAA-MM-DD): ");
             String nascimento = sc.nextLine();
 
-            System.out.print("Trabalho: ");
-            String trabalho = sc.nextLine();
+            System.out.print("Faculdade: ");
+            String amizade = sc.nextLine();
 
-            Pessoa pessoa = new Pessoa(id, nome, email, cpf, nascimento, trabalho);
+            Pessoa pessoa = new Pessoa(id, nome, email, cpf, nascimento, amizade);
 
             repo.adicionar(pessoa);
             log.registrarLog("Cadastro", "Pessoa adicionada: " + nome);
@@ -106,7 +106,7 @@ public class MenuPessoa {
             System.out.println("2. Email: " + atual.getEmail());
             System.out.println("3. CPF: " + atual.getCpf());
             System.out.println("4. Nascimento: " + atual.getDataNascimento());
-            System.out.println("5. Trabalho: " + atual.getTrabalho());
+            System.out.println("5. Amizade: " + atual.getAmizade());
 
             System.out.print("\nDigite o número do campo que deseja atualizar: ");
             String opcao = sc.nextLine();
@@ -117,7 +117,7 @@ public class MenuPessoa {
                 case "2" -> campo = "email";
                 case "3" -> campo = "cpf";
                 case "4" -> campo = "data_nascimento";
-                case "5" -> campo = "trabalho";
+                case "5" -> campo = "amizade";
                 default -> {
                     System.out.println("❌ Opção inválida.");
                     return;
@@ -168,7 +168,7 @@ public class MenuPessoa {
     System.out.println("Email: " + p.getEmail());
     System.out.println("CPF: " + p.getCpf());
     System.out.println("Nascimento: " + p.getDataNascimento());
-    System.out.println("Trabalho: " + p.getTrabalho());
+    System.out.println("Amizade: " + p.getAmizade());
     System.out.println("------------------------------");
 }
 private static void buscarPessoaPorCpf(Scanner sc, RepositoryPostgres repoPostgres, RepositoryMongo repoMongo, Redis redis) {

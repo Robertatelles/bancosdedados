@@ -6,7 +6,6 @@ import banco_james.menu.MenuPessoa;
 import banco_james.repository.*;
 
 import com.mongodb.client.MongoClients;
-import com.mongodb.client.MongoDatabase;
 
 import org.neo4j.driver.AuthTokens;
 import org.neo4j.driver.Driver;
@@ -20,17 +19,16 @@ public class Main {
         Redis redis = new Redis();
 
         try (
-            Scanner scanner = new Scanner(System.in);
-            var mongoClient = MongoClients.create("mongodb://localhost:27017");
-            Driver neoDriver = GraphDatabase.driver(
-                "bolt://localhost:7687",
-                AuthTokens.basic("neo4j", "12345678") // sua senha aqui
-            )
-        ) {
+                Scanner scanner = new Scanner(System.in);
+                var mongoClient = MongoClients.create("mongodb://localhost:27017");
+                Driver neoDriver = GraphDatabase.driver(
+                        "bolt://localhost:7687",
+                        AuthTokens.basic("neo4j", "12345678") // sua senha aqui
+                )) {
             // 🌐 Conexão com Neo4j
             try (var session = neoDriver.session()) {
                 String msg = session.run("RETURN 'Conectado ao Neo4j com sucesso!' AS msg")
-                                    .single().get("msg").asString();
+                        .single().get("msg").asString();
                 System.out.println("🟢 " + msg);
             }
 
@@ -60,21 +58,7 @@ public class Main {
                 opcao = Integer.parseInt(scanner.nextLine());
                 MenuPessoa.executarOpcao(opcao, scanner, repoPostgres, repoMongo, repoNeo, redis);
             } while (opcao != 8);
-
-            repoPostgres.fechar();
-
-            // 🧠 Consulta final no Redis
-            String acao = redis.get("ultima_acao");
-            System.out.println("🔁 Última ação registrada no Redis: " + acao);
-
-        } catch (Exception e) {
-            System.err.println("❌ Erro inesperado: " + e.getMessage());
-            try (var mongoClient = MongoClients.create("mongodb://localhost:27017")) {
-                MongoDatabase db = mongoClient.getDatabase("sistema_logs");
-                new RepositoryMongo(db).registrarErro("Exceção", e.getMessage());
-            } catch (Exception ex) {
-                System.err.println("⚠️ Falha ao registrar erro no MongoDB: " + ex.getMessage());
-            }
         }
+
     }
 }

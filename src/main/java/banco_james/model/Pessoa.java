@@ -6,15 +6,15 @@ public class Pessoa {
     private String email;
     private String cpf;
     private String dataNascimento;
-    private String trabalho;
+    private String amizade;
 
-public Pessoa(int id, String nome, String email, String cpf, String dataNascimento, String trabalho) {
+public Pessoa(int id, String nome, String email, String cpf, String dataNascimento, String amizade) {
         this.id = id;
         this.nome = nome;
         this.email = email;
         this.cpf = cpf;
         this.dataNascimento = dataNascimento;
-        this.trabalho = trabalho;
+        this.amizade = amizade;
     }
         public int getId() {
         return id;
@@ -36,7 +36,7 @@ public Pessoa(int id, String nome, String email, String cpf, String dataNascimen
         return dataNascimento;
     }
 
-    public String getTrabalho() {
-        return trabalho;
+    public String getAmizade() {
+        return amizade;
     }
 }
