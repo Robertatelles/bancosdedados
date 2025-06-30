@@ -35,7 +35,7 @@ public class Postgres {
                 int id = rs.getInt("id");
                 String nome = rs.getString("nome");
                 String email = rs.getString("email");
-                int cpfEncontrado = rs.getInt("cpf");
+                String cpfEncontrado = rs.getString("cpf");
                 String nascimento = rs.getString("nascimento");
                 String trabalho = rs.getString("trabalho");
 

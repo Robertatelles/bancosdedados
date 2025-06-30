@@ -28,7 +28,7 @@ public class RepositoryPostgres {
             stmt.setInt(1, pessoa.getId());
             stmt.setString(2, pessoa.getNome());
             stmt.setString(3, pessoa.getEmail());
-            stmt.setInt(4, pessoa.getCpf());
+            stmt.setString(4, pessoa.getCpf());
             stmt.setString(5, pessoa.getDataNascimento());
             stmt.setString(6, pessoa.getTrabalho());
             stmt.executeUpdate();
@@ -63,7 +63,7 @@ public class RepositoryPostgres {
                         rs.getInt("id"),
                         rs.getString("nome"),
                         rs.getString("email"),
-                        rs.getInt("cpf"),
+                        rs.getString("cpf"),
                         rs.getString("data_nascimento"),
                         rs.getString("trabalho")
                     );
@@ -166,7 +166,7 @@ public class RepositoryPostgres {
                     rs.getInt("id"),
                     rs.getString("nome"),
                     rs.getString("email"),
-                    rs.getInt("cpf"),
+                    rs.getString("cpf"),
                     rs.getString("data_nascimento"),
                     rs.getString("trabalho")
                 );
@@ -192,7 +192,7 @@ public class RepositoryPostgres {
                 rs.getInt("id"),
                 rs.getString("nome"),
                 rs.getString("email"),
-                rs.getInt("cpf"),
+                rs.getString("cpf"),
                 rs.getString("data_nascimento"),
                 rs.getString("trabalho")
             );

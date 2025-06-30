@@ -66,7 +66,7 @@ public class MenuPessoa {
             String email = sc.nextLine();
 
             System.out.print("CPF: ");
-            int cpf = Integer.parseInt(sc.nextLine());
+            String cpf = sc.nextLine();
 
             System.out.print("Data de nascimento (AAAA-MM-DD): ");
             String nascimento = sc.nextLine();

@@ -4,11 +4,11 @@ public class Pessoa {
     private int id;
     private String nome;
     private String email;
-    private int cpf;
+    private String cpf;
     private String dataNascimento;
     private String trabalho;
 
-public Pessoa(int id, String nome, String email, int cpf, String dataNascimento, String trabalho) {
+public Pessoa(int id, String nome, String email, String cpf, String dataNascimento, String trabalho) {
         this.id = id;
         this.nome = nome;
         this.email = email;
@@ -28,7 +28,7 @@ public Pessoa(int id, String nome, String email, int cpf, String dataNascimento,
         return email;
     }
 
-    public int getCpf() {
+    public String getCpf() {
         return cpf;
     }
 
