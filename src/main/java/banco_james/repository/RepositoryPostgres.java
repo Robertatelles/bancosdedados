@@ -22,8 +22,8 @@ public class RepositoryPostgres {
 
     public void adicionar(Pessoa pessoa) {
         long start = System.currentTimeMillis();
-
         String sql = "INSERT INTO pessoas (id, nome, email, cpf, data_nascimento, trabalho) VALUES (?, ?, ?, ?, ?, ?)";
+
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setInt(1, pessoa.getId());
             stmt.setString(2, pessoa.getNome());
@@ -56,16 +56,17 @@ public class RepositoryPostgres {
             String sql = "SELECT id, nome, email, cpf, data_nascimento, trabalho FROM pessoas";
 
             try (Statement stmt = connection.createStatement();
-                    ResultSet rs = stmt.executeQuery(sql)) {
+                 ResultSet rs = stmt.executeQuery(sql)) {
 
                 while (rs.next()) {
                     Pessoa pessoa = new Pessoa(
-                            rs.getInt("id"),
-                            rs.getString("nome"),
-                            rs.getString("email"),
-                            rs.getString("cpf"),
-                            rs.getString("data_nascimento"),
-                            rs.getString("trabalho"));
+                        rs.getInt("id"),
+                        rs.getString("nome"),
+                        rs.getString("email"),
+                        rs.getString("cpf"),
+                        rs.getString("data_nascimento"),
+                        rs.getString("trabalho")
+                    );
                     pessoaList.add(pessoa);
                 }
 
@@ -138,15 +139,79 @@ public class RepositoryPostgres {
         System.out.println("Trabalho: " + p.getTrabalho());
         System.out.println("-----------------------");
     }
+
     public boolean existeId(String cpf) {
-    String sql = "SELECT 1 FROM pessoas WHERE cpf = ?";
+        String sql = "SELECT 1 FROM pessoas WHERE cpf = ?";
+        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+            stmt.setString(1, cpf);
+            try (ResultSet rs = stmt.executeQuery()) {
+                return rs.next();
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    public Pessoa buscarPorCpf(String cpf) {
+        long start = System.currentTimeMillis();
+        String sql = "SELECT id, nome, email, cpf, data_nascimento, trabalho FROM pessoas WHERE cpf = ?";
+
+        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+            stmt.setString(1, cpf);
+            ResultSet rs = stmt.executeQuery();
+
+            if (rs.next()) {
+                Pessoa pessoa = new Pessoa(
+                    rs.getInt("id"),
+                    rs.getString("nome"),
+                    rs.getString("email"),
+                    rs.getString("cpf"),
+                    rs.getString("data_nascimento"),
+                    rs.getString("trabalho")
+                );
+
+                long duration = System.currentTimeMillis() - start;
+                System.out.println("Tempo de execução (BUSCAR POR CPF): " + duration + " ms");
+
+                return pessoa;
+            }
+        } catch (SQLException e) {
+            System.err.println("❌ Erro ao buscar CPF no PostgreSQL: " + e.getMessage());
+        }
+
+        return null;
+    }
+    public Pessoa buscarPorId(int id) {
+    String sql = "SELECT id, nome, email, cpf, data_nascimento, trabalho FROM pessoas WHERE id = ?";
     try (PreparedStatement stmt = connection.prepareStatement(sql)) {
-        stmt.setString(1, cpf);
-        try (ResultSet rs = stmt.executeQuery()) {
-            return rs.next();
+        stmt.setInt(1, id);
+        ResultSet rs = stmt.executeQuery();
+        if (rs.next()) {
+            return new Pessoa(
+                rs.getInt("id"),
+                rs.getString("nome"),
+                rs.getString("email"),
+                rs.getString("cpf"),
+                rs.getString("data_nascimento"),
+                rs.getString("trabalho")
+            );
         }
     } catch (SQLException e) {
-        e.printStackTrace();
+        System.err.println("❌ Erro ao buscar por ID: " + e.getMessage());
+    }
+    return null;
+}
+public boolean atualizarCampo(int id, String campo, String novoValor) {
+    String sql = "UPDATE pessoas SET " + campo + " = ? WHERE id = ?";
+    try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+        stmt.setString(1, novoValor);
+        stmt.setInt(2, id);
+        int linhas = stmt.executeUpdate();
+        redis.del(CACHE_KEY); // Invalida o cache
+        return linhas > 0;
+    } catch (SQLException e) {
+        System.err.println("❌ Erro ao atualizar campo: " + e.getMessage());
         return false;
     }
 }

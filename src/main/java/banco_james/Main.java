@@ -1,10 +1,9 @@
 package banco_james;
 
 import banco_james.database.Postgres;
+import banco_james.database.Redis;
 import banco_james.menu.MenuPessoa;
 import banco_james.repository.*;
-
-import redis.clients.jedis.Jedis;
 
 import com.mongodb.client.MongoClients;
 import com.mongodb.client.MongoDatabase;
@@ -17,14 +16,16 @@ import java.util.Scanner;
 
 public class Main {
     public static void main(String[] args) {
+        // 🔴 Redis fora do try-with-resources
+        Redis redis = new Redis();
+
         try (
             Scanner scanner = new Scanner(System.in);
             var mongoClient = MongoClients.create("mongodb://localhost:27017");
             Driver neoDriver = GraphDatabase.driver(
                 "bolt://localhost:7687",
                 AuthTokens.basic("neo4j", "12345678") // sua senha aqui
-            );
-            Jedis redis = new Jedis("localhost", 6379) // Redis ativo aqui!
+            )
         ) {
             // 🌐 Conexão com Neo4j
             try (var session = neoDriver.session()) {
@@ -57,8 +58,8 @@ public class Main {
             do {
                 MenuPessoa.exibirMenu();
                 opcao = Integer.parseInt(scanner.nextLine());
-                MenuPessoa.executarOpcao(opcao, scanner, repoPostgres, repoMongo, repoNeo);
-            } while (opcao != 5);
+                MenuPessoa.executarOpcao(opcao, scanner, repoPostgres, repoMongo, repoNeo, redis);
+            } while (opcao != 8);
 
             repoPostgres.fechar();
 

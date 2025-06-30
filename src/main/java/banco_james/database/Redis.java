@@ -25,4 +25,7 @@ public class Redis {
     public void close() {
         jedis.close();
     }
+    public String ping() {
+    return jedis.ping();
+}
 }
