@@ -41,7 +41,7 @@ public class Postgres {
 
                 return new Pessoa(id, nome, email, cpfEncontrado, nascimento, trabalho);
             } else {
-                return null; // Pessoa não encontrada
+                return null; 
             }
 
         } catch (SQLException e) {

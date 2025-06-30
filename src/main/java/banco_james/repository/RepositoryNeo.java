@@ -40,7 +40,7 @@ public class RepositoryNeo {
             });
             System.out.println("[NEO4J] Pessoa adicionada ou atualizada no grafo.");
 
-            // Remove conexões antigas (caso amizade tenha mudado)
+            
             session.executeWrite((TransactionContext tx) -> {
                 tx.run(
                     "MATCH (p:Pessoa {id: $id})-[r:CONEXAO_PROFISSIONAL]-() DELETE r",
@@ -50,7 +50,7 @@ public class RepositoryNeo {
             });
             System.out.println("[NEO4J] Conexões antigas removidas.");
 
-            // Cria novas conexões com o grupo atualizado
+            
             if (pessoa.getAmizade() != null && !pessoa.getAmizade().isBlank()) {
                 session.executeWrite((TransactionContext tx) -> {
                     tx.run(
@@ -149,7 +149,7 @@ public class RepositoryNeo {
                 "UNWIND pessoas AS p2 " +
                 "WITH p1, p2 WHERE id(p1) < id(p2) " +
                 "MERGE (p1)-[:AMIZADE]->(p2) " +
-                "MERGE (p2)-[:AMIZADE]->(p1)",  // conexão bidirecional
+                "MERGE (p2)-[:AMIZADE]->(p1)",  
                 parameters("amizade", amizade)
             );
             return null;

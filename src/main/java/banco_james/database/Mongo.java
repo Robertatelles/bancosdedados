@@ -8,7 +8,7 @@ public class Mongo {
     private static final String URL = "mongodb://localhost:27017";
     private static final String DATABASE_NAME = "registro";
 
-    private static final MongoClient client = MongoClients.create(URL); // cria uma única instância
+    private static final MongoClient client = MongoClients.create(URL); 
 
     public static MongoDatabase getDatabase() {
         return client.getDatabase(DATABASE_NAME);

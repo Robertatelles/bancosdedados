@@ -15,7 +15,7 @@ import java.util.Scanner;
 
 public class Main {
     public static void main(String[] args) {
-        // 🔴 Redis fora do try-with-resources
+        
         Redis redis = new Redis();
 
         try (
@@ -25,33 +25,33 @@ public class Main {
                         "bolt://localhost:7687",
                         AuthTokens.basic("neo4j", "12345678") // sua senha aqui
                 )) {
-            // 🌐 Conexão com Neo4j
+         
             try (var session = neoDriver.session()) {
                 String msg = session.run("RETURN 'Conectado ao Neo4j com sucesso!' AS msg")
                         .single().get("msg").asString();
                 System.out.println("🟢 " + msg);
             }
 
-            // 🐘 Conexão com PostgreSQL
+            
             var database = Postgres.getDatabase();
             System.out.println("🟢 Conectado ao PostgreSQL com sucesso!");
 
-            // 🍃 Conexão com MongoDB
+           
             var mongoDatabase = mongoClient.getDatabase("sistema_logs");
             System.out.println("🟢 Conectado ao MongoDB com sucesso!");
 
-            // 🔴 Conexão com Redis
+            
             if ("PONG".equalsIgnoreCase(redis.ping())) {
                 System.out.println("🟢 Conectado ao Redis com sucesso!");
                 redis.set("ultima_acao", "Sistema iniciado");
             }
 
-            // 🔗 Repositórios
+          
             var repoPostgres = new RepositoryPostgres(database);
             var repoMongo = new RepositoryMongo(mongoDatabase);
             var repoNeo = new RepositoryNeo(neoDriver);
 
-            // 🎛️ Menu interativo
+           
             int opcao;
             do {
                 MenuPessoa.exibirMenu();

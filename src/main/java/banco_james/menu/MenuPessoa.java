@@ -175,7 +175,7 @@ private static void buscarPessoaPorCpf(Scanner sc, RepositoryPostgres repoPostgr
     System.out.print("🔍 Digite o CPF: ");
     String cpf = sc.nextLine();
 
-    long start = System.currentTimeMillis(); // Início do cronômetro
+    long start = System.currentTimeMillis(); 
 
     String cache = redis.get("cpf:" + cpf);
 
