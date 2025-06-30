@@ -1,124 +1,78 @@
 package banco_james;
 
 import banco_james.database.Postgres;
-import banco_james.model.Pessoa;
-import banco_james.repository.RepositoryMongo;
-import banco_james.repository.RepositoryPostgres;
-import banco_james.repository.RepositoryNeo;
+import banco_james.menu.MenuPessoa;
+import banco_james.repository.*;
+
+import redis.clients.jedis.Jedis;
 
 import com.mongodb.client.MongoClients;
 import com.mongodb.client.MongoDatabase;
-import org.neo4j.driver.GraphDatabase;
+
+import org.neo4j.driver.AuthTokens;
 import org.neo4j.driver.Driver;
+import org.neo4j.driver.GraphDatabase;
 
 import java.util.Scanner;
 
 public class Main {
     public static void main(String[] args) {
         try (
-                Scanner scanner = new Scanner(System.in);
-                var mongoClient = MongoClients.create("mongodb://localhost:27017");
-                Driver neoDriver = GraphDatabase.driver("bolt://localhost:7687") // ajuste o endereço se necessário
+            Scanner scanner = new Scanner(System.in);
+            var mongoClient = MongoClients.create("mongodb://localhost:27017");
+            Driver neoDriver = GraphDatabase.driver(
+                "bolt://localhost:7687",
+                AuthTokens.basic("neo4j", "12345678") // sua senha aqui
+            );
+            Jedis redis = new Jedis("localhost", 6379) // Redis ativo aqui!
         ) {
+            // 🌐 Conexão com Neo4j
+            try (var session = neoDriver.session()) {
+                String msg = session.run("RETURN 'Conectado ao Neo4j com sucesso!' AS msg")
+                                    .single().get("msg").asString();
+                System.out.println("🟢 " + msg);
+            }
+
+            // 🐘 Conexão com PostgreSQL
             var database = Postgres.getDatabase();
-            var pessoaRepository = new RepositoryPostgres(database);
+            System.out.println("🟢 Conectado ao PostgreSQL com sucesso!");
 
-            MongoDatabase mongoDatabase = mongoClient.getDatabase("sistema_logs");
-            RepositoryMongo repositoryMongo = new RepositoryMongo(mongoDatabase);
-            RepositoryNeo repositoryNeo = new RepositoryNeo(neoDriver);
+            // 🍃 Conexão com MongoDB
+            var mongoDatabase = mongoClient.getDatabase("sistema_logs");
+            System.out.println("🟢 Conectado ao MongoDB com sucesso!");
 
+            // 🔴 Conexão com Redis
+            if ("PONG".equalsIgnoreCase(redis.ping())) {
+                System.out.println("🟢 Conectado ao Redis com sucesso!");
+                redis.set("ultima_acao", "Sistema iniciado");
+            }
+
+            // 🔗 Repositórios
+            var repoPostgres = new RepositoryPostgres(database);
+            var repoMongo = new RepositoryMongo(mongoDatabase);
+            var repoNeo = new RepositoryNeo(neoDriver);
+
+            // 🎛️ Menu interativo
             int opcao;
             do {
-                System.out.println("\n==== GERENCIAMENTO DE PESSOAS ====");
-                System.out.println("1. Cadastrar nova pessoa");
-                System.out.println("2. Ver lista de pessoas cadastradas");
-                System.out.println("3. Atualizar dados de uma pessoa");
-                System.out.println("4. Excluir pessoa do sistema");
-                System.out.println("5. Encerrar programa");
-                System.out.println("6. Ver conexões profissionais");
-                System.out.print("Digite sua escolha: ");
-                opcao = scanner.nextInt();
-                scanner.nextLine();
-
-                switch (opcao) {
-                    case 1 -> {
-                        System.out.print("ID: ");
-                        int id = scanner.nextInt();
-                        scanner.nextLine();
-
-                        System.out.print("Nome: ");
-                        String nome = scanner.nextLine();
-
-                        System.out.print("Email: ");
-                        String email = scanner.nextLine();
-
-                        System.out.print("CPF: ");
-                        String cpf = scanner.nextLine();
-
-                        System.out.print("Data de nascimento (AAAA-MM-DD): ");
-                        String dataNascimento = scanner.nextLine();
-
-                        System.out.print("Trabalho: ");
-                        String trabalho = scanner.nextLine();
-
-                        Pessoa pessoa = new Pessoa(id, nome, email, cpf, dataNascimento, trabalho);
-                        pessoaRepository.adicionar(pessoa);
-                        repositoryMongo.registrarLog("Cadastro", "Pessoa adicionada: " + nome);
-                        repositoryNeo.adicionarPessoa(pessoa); // Conexões profissionais no grafo
-                    }
-                    case 2 -> {
-                        pessoaRepository.listar();
-                        repositoryMongo.registrarLog("Consulta", "Listagem de pessoas realizada");
-                    }
-                    case 3 -> {
-                        System.out.print("ID da pessoa a atualizar: ");
-                        int idAtualizar = scanner.nextInt();
-                        scanner.nextLine();
-
-                        System.out.print("Novo nome: ");
-                        String novoNome = scanner.nextLine();
-
-                        pessoaRepository.atualizar(idAtualizar, novoNome);
-                        repositoryMongo.registrarLog("Atualização",
-                                "Pessoa ID " + idAtualizar + " atualizada para nome: " + novoNome);
-                    }
-                    case 4 -> {
-                        System.out.print("ID da pessoa a remover: ");
-                        int idRemover = scanner.nextInt();
-                        scanner.nextLine();
-
-                        pessoaRepository.remover(idRemover);
-                        repositoryMongo.registrarLog("Remoção", "Pessoa removida ID: " + idRemover);
-                    }
-                    case 5 -> {
-                        System.out.println("Saindo...");
-                        repositoryMongo.registrarLog("Encerramento", "Programa finalizado pelo usuário");
-                    }
-                    default -> {
-                        System.out.println("Opção inválida!");
-                        repositoryMongo.registrarErro("Erro de entrada", "Opção inválida selecionada: " + opcao);
-                    }
-                    case 6 -> {
-                        System.out.print("ID da pessoa para visualizar conexões: ");
-                        int idConsulta = scanner.nextInt();
-                        scanner.nextLine();
-                        repositoryNeo.listarConexoesProfissionais(idConsulta);
-                        repositoryMongo.registrarLog("Consulta",
-                                "Visualização de conexões da pessoa ID: " + idConsulta);
-                    }
-
-                }
+                MenuPessoa.exibirMenu();
+                opcao = Integer.parseInt(scanner.nextLine());
+                MenuPessoa.executarOpcao(opcao, scanner, repoPostgres, repoMongo, repoNeo);
             } while (opcao != 5);
 
-            pessoaRepository.fechar();
+            repoPostgres.fechar();
+
+            // 🧠 Consulta final no Redis
+            String acao = redis.get("ultima_acao");
+            System.out.println("🔁 Última ação registrada no Redis: " + acao);
+
         } catch (Exception e) {
-            System.err.println("Erro inesperado: " + e.getMessage());
+            System.err.println("❌ Erro inesperado: " + e.getMessage());
             try (var mongoClient = MongoClients.create("mongodb://localhost:27017")) {
-                MongoDatabase mongoDatabase = mongoClient.getDatabase("sistema_logs");
-                RepositoryMongo repositoryMongo = new RepositoryMongo(mongoDatabase);
-                repositoryMongo.registrarErro("Exceção", e.getMessage());
+                MongoDatabase db = mongoClient.getDatabase("sistema_logs");
+                new RepositoryMongo(db).registrarErro("Exceção", e.getMessage());
             } catch (Exception ex) {
-                System.err.println("Falha ao registrar erro no MongoDB: " + ex.getMessage());
+                System.err.println("⚠️ Falha ao registrar erro no MongoDB: " + ex.getMessage());
             }
         }
     }

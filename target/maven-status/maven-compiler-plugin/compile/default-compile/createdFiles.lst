@@ -1,0 +1,10 @@
+banco_james\database\Redis.class
+banco_james\database\Mongo.class
+banco_james\database\Postgres.class
+banco_james\menu\MenuPessoa.class
+banco_james\Main.class
+banco_james\repository\RepositoryPostgres.class
+banco_james\repository\RepositoryMongo.class
+banco_james\database\Neo.class
+banco_james\model\Pessoa.class
+banco_james\repository\RepositoryNeo.class
