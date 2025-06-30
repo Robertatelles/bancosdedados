@@ -1,7 +1,6 @@
 package banco_james.repository;
 
 import banco_james.database.Redis;
-import banco_james.database.Postgres;
 import banco_james.model.Pessoa;
 
 import com.google.gson.Gson;
